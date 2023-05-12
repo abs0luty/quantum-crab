@@ -77,7 +77,7 @@ impl<T: Clone + Default> Matrix<T> {
         result
     }
 
-    fn tensor_product(&self, other: &Matrix<T>) -> Matrix<T>
+    pub fn tensor_product(&self, other: &Matrix<T>) -> Matrix<T>
     where
         T: Mul<Output = T>,
     {
@@ -95,6 +95,11 @@ impl<T: Clone + Default> Matrix<T> {
         }
 
         result
+    }
+
+    pub fn embed(&mut self, matrix: &Matrix<T>, i: usize, j: usize) {
+        assert!(i + matrix.rows() <= self.rows());
+        assert!(j + matrix.cols() <= self.cols());
     }
 }
 
