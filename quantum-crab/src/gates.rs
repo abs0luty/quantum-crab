@@ -1,5 +1,5 @@
 use crate::{complex::Complex, matrix::Matrix};
-use num::One;
+use num::{One, Zero};
 
 type Gate = Matrix<Complex>;
 

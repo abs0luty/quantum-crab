@@ -9,3 +9,4 @@ mod gates;
 mod ket;
 mod quantum_circuit;
 mod quantum_register;
+mod simulator;

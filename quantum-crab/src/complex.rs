@@ -1,9 +1,8 @@
+use num::{One, Zero};
 use std::{
     iter::Sum,
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
-
-use num::One;
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Complex {
@@ -56,10 +55,6 @@ impl Complex {
 
     pub fn i() -> Complex {
         complex![0, 1]
-    }
-
-    pub fn zero() -> Complex {
-        complex![0, 0]
     }
 }
 
@@ -130,7 +125,17 @@ impl Sum for Complex {
 
 impl One for Complex {
     fn one() -> Self {
-        real![0]
+        real![1]
+    }
+}
+
+impl Zero for Complex {
+    fn zero() -> Self {
+        complex![0, 0]
+    }
+
+    fn is_zero(&self) -> bool {
+        self.real == 0f64 && self.imag == 0f64
     }
 }
 

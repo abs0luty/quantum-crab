@@ -1,6 +1,9 @@
 use crate::complex::Complex;
-use num::One;
-use std::ops::{Add, Mul};
+use num::{One, Zero};
+use std::{
+    fmt::Debug,
+    ops::{Add, Mul},
+};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Matrix<T> {
@@ -9,7 +12,7 @@ pub struct Matrix<T> {
     data: Vec<T>,
 }
 
-impl<T: Clone + Default> Matrix<T> {
+impl<T: Clone + Default + Debug> Matrix<T> {
     pub fn new_with_default_elems(rows: usize, cols: usize) -> Matrix<T> {
         Matrix {
             rows,
@@ -27,11 +30,11 @@ impl<T: Clone + Default> Matrix<T> {
     }
 
     pub fn get(&self, row: usize, col: usize) -> T {
-        self.data[row * self.cols + col].clone()
+        self.data[col * self.rows + row].clone()
     }
 
     pub fn set(&mut self, row: usize, col: usize, value: T) {
-        self.data[row * self.cols + col] = value;
+        self.data[col * self.rows + row] = value;
     }
 
     pub fn rows(&self) -> usize {
@@ -53,24 +56,25 @@ impl<T: Clone + Default> Matrix<T> {
 
         result
     }
-
-    pub fn dot_product(&self, rhs: &Matrix<T>) -> Matrix<T>
+    pub fn dot_product(&self, other: &Matrix<T>) -> Matrix<T>
     where
-        T: Add<Output = T> + Mul<Output = T>,
+        T: Add<Output = T> + Mul<Output = T> + Zero,
     {
-        assert_eq!(self.cols(), rhs.rows());
+        assert_eq!(self.rows, other.cols);
 
-        let mut result = Matrix::new_with_default_elems(self.rows, rhs.cols());
+        let mut result = Matrix::new_with_default_elems(self.cols, other.rows);
 
-        for i in 0..self.rows {
-            for j in 0..rhs.cols() {
-                let mut sum = Default::default();
+        for i in 0..self.cols {
+            for j in 0..other.rows {
+                let mut sum = T::zero();
 
-                for k in 0..self.cols {
-                    sum = sum + self.get(i, k) * rhs.get(k, j);
+                for k in 0..self.rows {
+                    let a = self.get(k, i).clone();
+                    let b = other.get(j, k).clone();
+                    sum = sum + a * b;
                 }
 
-                result.set(i, j, sum);
+                result.set(j, i, sum);
             }
         }
 
@@ -126,7 +130,7 @@ impl Matrix<Complex> {
 
 impl<T> Matrix<T>
 where
-    T: Clone + Default + Mul<Output = T> + PartialEq + One,
+    T: Clone + Default + Mul<Output = T> + PartialEq + One + Debug,
 {
     pub fn identity(size: usize) -> Matrix<T> {
         let mut result = Matrix::new_with_default_elems(size, size);
@@ -139,7 +143,7 @@ where
 
 impl<'a, T> Add<&'a Matrix<T>> for Matrix<T>
 where
-    T: Add<Output = T> + Clone + Default,
+    T: Add<Output = T> + Clone + Default + Debug,
 {
     type Output = Matrix<T>;
 
@@ -161,7 +165,7 @@ where
 
 impl<'a, T> Mul<&'a Matrix<T>> for Matrix<T>
 where
-    T: Add<Output = T> + Mul<Output = T> + Clone + Default,
+    T: Add<Output = T> + Mul<Output = T> + Zero + Clone + Default + Debug,
 {
     type Output = Matrix<T>;
 

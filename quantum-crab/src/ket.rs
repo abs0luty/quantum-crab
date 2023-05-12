@@ -1,14 +1,26 @@
 use crate::{classical_register::ClassicalRegister, complex::Complex, matrix::Matrix};
 use num::One;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Ket {
     inner: Matrix<Complex>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Bra {
     inner: Matrix<Complex>,
+}
+
+impl Ket {
+    pub fn matrix(&self) -> &Matrix<Complex> {
+        &self.inner
+    }
+}
+
+impl Bra {
+    pub fn matrix(&self) -> &Matrix<Complex> {
+        &self.inner
+    }
 }
 
 impl From<Bra> for Ket {
@@ -55,4 +67,11 @@ impl From<&ClassicalRegister> for Bra {
         bra.set(register.value() as usize, 0, Complex::one());
         bra.into()
     }
+}
+
+#[test]
+fn test_ket_from_classical_reg() {
+    let register = ClassicalRegister::from_value(4, 2);
+    let ket = Ket::from(&register);
+    assert_eq!(*ket.matrix(), matrix_real![[0, 1, 0, 0]]);
 }

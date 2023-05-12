@@ -1,5 +1,5 @@
-use crate::{matrix::Matrix, quantum_circuit::QuantumCircuit};
+use crate::{complex::Complex, matrix::Matrix, quantum_circuit::QuantumCircuit};
 
 pub trait Backend {
-    fn execute(circuit: QuantumCircuit) -> Matrix<f64>;
+    fn execute(circuit: QuantumCircuit) -> Matrix<Complex>;
 }
