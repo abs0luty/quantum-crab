@@ -1,11 +1,10 @@
+use crate::{classical_register::ClassicalRegister, complex::Complex, ket::Ket, matrix::Matrix};
 use std::cell::Cell;
-
-use crate::{classical_register::ClassicalRegister, complex::Complex, matrix::Matrix};
 
 #[derive(Debug)]
 pub struct QuantumRegister {
     width: usize,
-    state: Matrix<Complex>,
+    state: Ket,
     collapsed: Cell<bool>,
 }
 
@@ -13,7 +12,7 @@ impl From<ClassicalRegister> for QuantumRegister {
     fn from(classical: ClassicalRegister) -> Self {
         QuantumRegister {
             width: classical.width(),
-            state: classical,
+            state: (&classical).into(),
             collapsed: Cell::new(false),
         }
     }

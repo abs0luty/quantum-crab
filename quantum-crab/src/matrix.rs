@@ -10,7 +10,7 @@ pub struct Matrix<T> {
 }
 
 impl<T: Clone + Default> Matrix<T> {
-    pub fn zeroed(rows: usize, cols: usize) -> Matrix<T> {
+    pub fn new_with_default_elems(rows: usize, cols: usize) -> Matrix<T> {
         Matrix {
             rows,
             cols,
@@ -43,7 +43,7 @@ impl<T: Clone + Default> Matrix<T> {
     }
 
     pub fn transpose(&self) -> Matrix<T> {
-        let mut result = Matrix::zeroed(self.cols, self.rows);
+        let mut result = Matrix::new_with_default_elems(self.cols, self.rows);
 
         for i in 0..self.rows {
             for j in 0..self.cols {
@@ -60,7 +60,7 @@ impl<T: Clone + Default> Matrix<T> {
     {
         assert_eq!(self.cols(), rhs.rows());
 
-        let mut result = Matrix::zeroed(self.rows, rhs.cols());
+        let mut result = Matrix::new_with_default_elems(self.rows, rhs.cols());
 
         for i in 0..self.rows {
             for j in 0..rhs.cols() {
@@ -81,7 +81,8 @@ impl<T: Clone + Default> Matrix<T> {
     where
         T: Mul<Output = T>,
     {
-        let mut result = Matrix::zeroed(self.rows() * other.rows(), self.cols() * other.cols());
+        let mut result =
+            Matrix::new_with_default_elems(self.rows() * other.rows(), self.cols() * other.cols());
 
         for i in 0..self.rows() {
             for j in 0..self.cols() {
@@ -100,12 +101,18 @@ impl<T: Clone + Default> Matrix<T> {
     pub fn embed(&mut self, matrix: &Matrix<T>, i: usize, j: usize) {
         assert!(i + matrix.rows() <= self.rows());
         assert!(j + matrix.cols() <= self.cols());
+
+        for delta_i in 0..matrix.rows() {
+            for delta_j in 0..matrix.cols() {
+                self.set(i + delta_i, j + delta_j, matrix.get(delta_i, delta_j));
+            }
+        }
     }
 }
 
 impl Matrix<Complex> {
     pub fn hermitian_transpose(&self) -> Self {
-        let mut result = Matrix::zeroed(self.cols, self.rows);
+        let mut result = Matrix::new_with_default_elems(self.cols, self.rows);
 
         for i in 0..self.rows {
             for j in 0..self.cols {
@@ -122,7 +129,7 @@ where
     T: Clone + Default + Mul<Output = T> + PartialEq + One,
 {
     pub fn identity(size: usize) -> Matrix<T> {
-        let mut result = Matrix::zeroed(size, size);
+        let mut result = Matrix::new_with_default_elems(size, size);
         for i in 0..size {
             result.set(i, i, T::one());
         }
@@ -140,7 +147,7 @@ where
         assert_eq!(self.rows(), other.rows());
         assert_eq!(self.cols(), other.cols());
 
-        let mut result = Matrix::zeroed(self.rows, self.cols);
+        let mut result = Matrix::new_with_default_elems(self.rows, self.cols);
 
         for i in 0..self.rows {
             for j in 0..self.cols {
