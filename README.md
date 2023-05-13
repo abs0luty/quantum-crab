@@ -23,7 +23,7 @@ fn main() {
 }
 ```
 
-> This circuit shows the circuit that creates superposition state:
+> This shows the circuit that creates superposition state:
 >
 > ```
 > [
