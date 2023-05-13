@@ -6,7 +6,6 @@ mod ascii_circuit_visualizer;
 mod backend;
 mod classical_register;
 mod gates;
-mod ket;
 mod quantum_circuit;
 mod quantum_register;
-mod simulator;
+mod statevector_backend;

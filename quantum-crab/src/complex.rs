@@ -1,5 +1,7 @@
+use core::fmt;
 use num::{One, Zero};
 use std::{
+    fmt::Display,
     iter::Sum,
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
@@ -13,7 +15,7 @@ pub struct Complex {
 #[macro_export]
 macro_rules! complex {
     [$re:expr, $imag:expr] => {
-        Complex::new($re as f64, $imag as f64)
+        $crate::complex::Complex::new($re as f64, $imag as f64)
     };
 }
 
@@ -55,6 +57,12 @@ impl Complex {
 
     pub fn i() -> Complex {
         complex![0, 1]
+    }
+}
+
+impl Display for Complex {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} + {}i", self.real, self.imag)
     }
 }
 

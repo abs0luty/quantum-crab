@@ -1,6 +1,7 @@
 use backend::Backend;
-use quantum_circuit::{Instruction, InstructionType, QuantumCircuit};
-use simulator::SimulatorBackend;
+use quantum_circuit::{Instruction, QuantumCircuit};
+
+use crate::statevector_backend::StatevectorBackend;
 
 #[macro_use]
 mod complex;
@@ -10,15 +11,14 @@ mod ascii_circuit_visualizer;
 mod backend;
 mod classical_register;
 mod gates;
-mod ket;
 mod quantum_circuit;
 mod quantum_register;
-mod simulator;
+mod statevector_backend;
 
 fn main() {
-    let mut circuit = QuantumCircuit::new(3);
-    circuit.add(Instruction::new(InstructionType::Hadamard, vec![1]));
-    circuit.add(Instruction::new(InstructionType::Hadamard, vec![2]));
-    let result = SimulatorBackend::execute(circuit);
-    dbg!(result);
+    let mut circuit = QuantumCircuit::new(2);
+    circuit.add(Instruction::Hadamard(0));
+    circuit.add(Instruction::Hadamard(1));
+    let result = StatevectorBackend::execute(circuit);
+    println!("Result statevector: {}", result);
 }

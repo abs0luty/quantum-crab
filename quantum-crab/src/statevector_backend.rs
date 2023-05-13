@@ -6,31 +6,31 @@ use crate::{
     complex::Complex,
     gates::{hadamard, identity},
     matrix::Matrix,
-    quantum_circuit::{InstructionType, QuantumCircuit},
+    quantum_circuit::{Instruction, QuantumCircuit},
     quantum_register::QuantumRegister,
 };
 
 #[derive(Debug)]
-pub struct SimulatorBackend;
+pub struct StatevectorBackend;
 
-impl Backend for SimulatorBackend {
+
+
+impl Backend for StatevectorBackend {
+    type Output = Matrix<Complex>;
+
     fn execute(circuit: QuantumCircuit) -> Matrix<Complex> {
-        let mut output = Matrix::new_with_default_elems(1, 2usize.pow(circuit.qubits() as u32));
+        let mut output = Matrix::new_with_default_elems(2usize.pow(circuit.qubits() as u32), 1);
         output.set(0, 0, Complex::one());
 
         for instruction in circuit.instructions() {
-            match instruction.ty() {
-                &InstructionType::Hadamard => {
-                    assert_eq!(instruction.inputs().len(), 1);
-
-                    let qubit_idx = instruction.inputs()[0];
-
+            match instruction {
+                &Instruction::Hadamard(qubit) => {
                     let mut gate = hadamard();
                     let identity = identity();
-                    for i in 0..qubit_idx {
+                    for i in 0..qubit {
                         gate = identity.tensor_product(&gate);
                     }
-                    for j in 0..qubit_idx {
+                    for j in (qubit + 1)..circuit.qubits() {
                         gate = gate.tensor_product(&identity);
                     }
 

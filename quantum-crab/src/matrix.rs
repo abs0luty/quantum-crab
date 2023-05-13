@@ -1,7 +1,8 @@
 use crate::complex::Complex;
+use core::fmt;
 use num::{One, Zero};
 use std::{
-    fmt::Debug,
+    fmt::{Debug, Display, Write},
     ops::{Add, Mul},
 };
 
@@ -30,11 +31,11 @@ impl<T: Clone + Default + Debug> Matrix<T> {
     }
 
     pub fn get(&self, row: usize, col: usize) -> T {
-        self.data[col * self.rows + row].clone()
+        self.data[row * self.cols + col].clone()
     }
 
     pub fn set(&mut self, row: usize, col: usize, value: T) {
-        self.data[col * self.rows + row] = value;
+        self.data[row * self.cols + col] = value;
     }
 
     pub fn rows(&self) -> usize {
@@ -56,25 +57,24 @@ impl<T: Clone + Default + Debug> Matrix<T> {
 
         result
     }
-    pub fn dot_product(&self, other: &Matrix<T>) -> Matrix<T>
+
+    pub fn dot_product(&self, rhs: &Matrix<T>) -> Matrix<T>
     where
-        T: Add<Output = T> + Mul<Output = T> + Zero,
+        T: Add<Output = T> + Mul<Output = T>,
     {
-        assert_eq!(self.rows, other.cols);
+        assert_eq!(self.cols(), rhs.rows());
 
-        let mut result = Matrix::new_with_default_elems(self.cols, other.rows);
+        let mut result = Matrix::new_with_default_elems(self.rows, rhs.cols());
 
-        for i in 0..self.cols {
-            for j in 0..other.rows {
-                let mut sum = T::zero();
+        for i in 0..self.rows {
+            for j in 0..rhs.cols() {
+                let mut sum = Default::default();
 
-                for k in 0..self.rows {
-                    let a = self.get(k, i).clone();
-                    let b = other.get(j, k).clone();
-                    sum = sum + a * b;
+                for k in 0..self.cols {
+                    sum = sum + self.get(i, k) * rhs.get(k, j);
                 }
 
-                result.set(j, i, sum);
+                result.set(i, j, sum);
             }
         }
 
@@ -111,6 +111,26 @@ impl<T: Clone + Default + Debug> Matrix<T> {
                 self.set(i + delta_i, j + delta_j, matrix.get(delta_i, delta_j));
             }
         }
+    }
+}
+
+impl<T> Display for Matrix<T>
+where
+    T: Display + Clone + Debug + Default,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("[\n")?;
+
+        for i in 0..self.rows {
+            f.write_char('\t')?;
+            for j in 0..self.cols {
+                write!(f, "{} ", self.get(i, j))?;
+            }
+            f.write_char('\n')?;
+        }
+        f.write_str("]\n")?;
+
+        Ok(())
     }
 }
 
@@ -200,9 +220,9 @@ macro_rules! m_rec {
         let _rows = 0 $(+ m_one!($row) )*;
         let _cols = (0 $(+ m_one!($i))*) / _rows;
         Matrix::new(
-        _rows,
-        _cols,
-        vec![$($i),*]
+            _rows,
+            _cols,
+            vec![$($i),*]
         )
     })
 }
@@ -238,6 +258,15 @@ fn test_dot_product() {
     let dot_product = m1.dot_product(&m2);
     let expected = matrix![[19, 22], [43, 50]];
     assert_eq!(dot_product, expected);
+}
+
+#[test]
+fn test_dot_product2() {
+    let ket0 = matrix![[1], [0]];
+    let pauli_x = matrix![[0, 1], [1, 0]];
+    let ket1 = matrix![[0], [1]];
+
+    assert_eq!(pauli_x.dot_product(&ket0), ket1);
 }
 
 #[test]

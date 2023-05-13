@@ -30,42 +30,17 @@ pub trait CircuitVisualizer {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Instruction {
-    ty: InstructionType,
-    inputs: Vec<usize>,
-}
-
-impl Instruction {
-    pub fn ty(&self) -> &InstructionType {
-        &self.ty
-    }
-
-    pub fn inputs(&self) -> &Vec<usize> {
-        &self.inputs
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum InstructionType {
-    Measure,
-    PauliX,
-    PauliY,
-    PauliZ,
-    Hadamard,
-    Phase,
-    T,
-    CNOT,
-    SWAP,
-    Toffoli,
-    CX,
-    CCX,
-    Custom(String, QuantumCircuit),
-}
-
-pub use InstructionType::*;
-
-impl Instruction {
-    pub fn new(ty: InstructionType, inputs: Vec<usize>) -> Instruction {
-        Instruction { ty, inputs }
-    }
+pub enum Instruction {
+    Measure(usize),
+    PauliX(usize),
+    PauliY(usize),
+    PauliZ(usize),
+    Hadamard(usize),
+    Phase(usize),
+    T(usize),
+    CNOT(usize, usize),
+    SWAP(usize, usize),
+    Toffoli(usize, usize, usize),
+    CX(usize, usize),
+    Custom(String, QuantumCircuit, Vec<usize>),
 }
