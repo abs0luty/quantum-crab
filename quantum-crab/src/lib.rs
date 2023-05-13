@@ -7,5 +7,4 @@ pub mod backend;
 pub mod classical_register;
 pub mod gates;
 pub mod quantum_circuit;
-pub mod quantum_register;
 pub mod statevector_backend;

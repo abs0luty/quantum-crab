@@ -1,3 +1,5 @@
+//! Implements matrix data structure.
+
 use crate::complex::Complex;
 use core::fmt;
 use num::{One, Zero};
@@ -233,8 +235,8 @@ macro_rules! matrix {
 }
 
 macro_rules! matrix_real {
-    ($([$( $i:expr ),*]),*) => ( m_rec!([$([$(complex!($i, 0)),*]),*]
-        [$($(complex!($i, 0)),*),*]) )
+    ($([$( $i:expr ),*]),*) => ( m_rec!([$([$(Complex::from($i)),*]),*]
+        [$($(Complex::from($i)),*),*]) )
 }
 
 #[test]

@@ -7,6 +7,7 @@ use crate::{
 };
 use num::One;
 
+///
 #[derive(Debug)]
 pub struct StatevectorBackend;
 
@@ -63,4 +64,17 @@ impl Backend for StatevectorBackend {
 
         statevector
     }
+}
+
+#[test]
+pub fn test_one_qubit_gates() {
+    let mut circuit = QuantumCircuit::new(3);
+    circuit.add(Instruction::Hadamard(0));
+    circuit.add(Instruction::PauliX(0));
+    circuit.add(Instruction::PauliX(1));
+    circuit.add(Instruction::T(1));
+    circuit.add(Instruction::Hadamard(1));
+    circuit.add(Instruction::T(2));
+    circuit.add(Instruction::Hadamard(2));
+    // let statevector = StatevectorBackend::execute(circuit);
 }

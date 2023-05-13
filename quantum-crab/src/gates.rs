@@ -14,7 +14,7 @@ pub fn identity() -> Gate {
 /// See [Wikipedia](https://en.wikipedia.org/wiki/Hadamard_transform#Quantum_computing_applications)
 /// for more information.
 pub fn hadamard() -> Gate {
-    matrix_real![[1, 1], [1, -1]] * real![0.7071067811865475]
+    matrix_real![[1, 1], [1, -1]] * Complex::from(1f64 / f64::sqrt(2f64))
 }
 
 /// A single qubit phase-shift gate.
