@@ -18,7 +18,8 @@ mod statevector_backend;
 fn main() {
     let mut circuit = QuantumCircuit::new(2);
     circuit.add(Instruction::Hadamard(0));
-    circuit.add(Instruction::Hadamard(1));
+    circuit.add(Instruction::PauliX(0));
+    circuit.add(Instruction::PauliY(1));
     let result = StatevectorBackend::execute(circuit);
     println!("Result statevector: {}", result);
 }

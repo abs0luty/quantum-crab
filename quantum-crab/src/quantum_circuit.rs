@@ -36,7 +36,7 @@ pub enum Instruction {
     PauliY(usize),
     PauliZ(usize),
     Hadamard(usize),
-    Phase(usize),
+    Phase(usize, f64),
     T(usize),
     CNOT(usize, usize),
     SWAP(usize, usize),

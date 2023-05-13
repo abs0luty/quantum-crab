@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use crate::{complex::Complex, matrix::Matrix};
 use num::{One, Zero};
 
@@ -24,6 +26,11 @@ pub fn phase_shift(phase: f64) -> Gate {
         [Complex::one(), Complex::zero()],
         [Complex::zero(), Complex::new_from_polar(1f64, phase)]
     ]
+}
+
+/// T gate (pi/8 single qubit phase-shift gate).
+pub fn t() -> Gate {
+    phase_shift(PI / 4f64)
 }
 
 /// The Pauli-X gate.
