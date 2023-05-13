@@ -1,11 +1,11 @@
 #[macro_use]
-mod complex;
+pub mod complex;
 #[macro_use]
-mod matrix;
-mod ascii_circuit_visualizer;
-mod backend;
-mod classical_register;
-mod gates;
-mod quantum_circuit;
-mod quantum_register;
-mod statevector_backend;
+pub mod matrix;
+pub mod ascii_circuit_visualizer;
+pub mod backend;
+pub mod classical_register;
+pub mod gates;
+pub mod quantum_circuit;
+pub mod quantum_register;
+pub mod statevector_backend;
