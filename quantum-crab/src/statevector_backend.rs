@@ -1,15 +1,14 @@
 use crate::{
     backend::Backend,
     complex::Complex,
-    gates::{hadamard, identity, pauli_x, pauli_y, pauli_z, phase_shift, t},
+    gates::{hadamard, identity, identity2, pauli_x, pauli_y, pauli_z, phase_shift, t},
     matrix::Matrix,
     quantum_circuit::{Instruction, QuantumCircuit},
 };
 use num::One;
 
-///
 #[derive(Debug)]
-pub struct StatevectorBackend;
+pub struct StateVectorBackend;
 
 fn execute_single_qubit_instruction(
     instruction: &Instruction,
@@ -27,20 +26,18 @@ fn execute_single_qubit_instruction(
         _ => unreachable!(),
     };
 
-    let identity = identity();
-
-    for _ in 0..qubit {
-        gate_matrix = gate_matrix.tensor_product(&identity);
+    if qubit != 0 {
+        gate_matrix = gate_matrix.tensor_product(&identity(2_usize.pow(qubit as u32)));
     }
 
     for _ in (qubit + 1)..circuit.qubits() {
-        gate_matrix = identity.tensor_product(&gate_matrix);
+        gate_matrix = identity2().tensor_product(&gate_matrix);
     }
 
     *statevector = gate_matrix.dot_product(statevector);
 }
 
-impl Backend for StatevectorBackend {
+impl Backend for StateVectorBackend {
     type Output = Matrix<Complex>;
 
     fn execute(circuit: QuantumCircuit) -> Matrix<Complex> {
@@ -64,17 +61,4 @@ impl Backend for StatevectorBackend {
 
         statevector
     }
-}
-
-#[test]
-pub fn test_one_qubit_gates() {
-    let mut circuit = QuantumCircuit::new(3);
-    circuit.add(Instruction::Hadamard(0));
-    circuit.add(Instruction::PauliX(0));
-    circuit.add(Instruction::PauliX(1));
-    circuit.add(Instruction::T(1));
-    circuit.add(Instruction::Hadamard(1));
-    circuit.add(Instruction::T(2));
-    circuit.add(Instruction::Hadamard(2));
-    // let statevector = StatevectorBackend::execute(circuit);
 }
