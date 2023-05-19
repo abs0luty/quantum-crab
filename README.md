@@ -1,12 +1,6 @@
-<p align="center">
-<img src="./banner.png"> <br>
-</p>
+# 🦀 Quantum crab
 
-<h2 align="center">Quantum computing crate for Rust programming language.</h2>
-
-# Example
-
-Run your first quantum program in few lines of code:
+Quantum crab is a quantum computing crate for Rust programming language.
 
 ```rs
 use quantum_crab::{
