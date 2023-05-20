@@ -103,7 +103,11 @@ impl Complex {
 
 impl Display for Complex {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} + {}i", self.real, self.imag)
+        if self.imag >= 0f64 {
+            write!(f, "{} + {}i", self.real, self.imag)
+        } else {
+            write!(f, "{} - {}i", self.real, self.imag.abs())
+        }
     }
 }
 
@@ -180,7 +184,7 @@ impl One for Complex {
 
 impl Zero for Complex {
     fn zero() -> Self {
-        Complex::new(0, 0)
+        0.into()
     }
 
     fn is_zero(&self) -> bool {
