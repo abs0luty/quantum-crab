@@ -31,7 +31,7 @@ pub trait CircuitVisualizer {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Instruction {
-    /// The identity gate instruction.
+    /// The Identity gate.
     ///
     /// The gate just doesn't do anything to the qubit state at all:
     ///
@@ -48,7 +48,7 @@ pub enum Instruction {
     /// ```
     Identity(usize),
 
-    /// The Pauli-X gate instruction.
+    /// The Pauli-X gate.
     ///
     /// The gate flips given qubit probability amplitudes:
     /// ```txt
@@ -74,7 +74,7 @@ pub enum Instruction {
     /// for more information.
     PauliX(usize),
 
-    /// The Pauli-Y gate instruction.
+    /// The Pauli-Y gate.
     ///
     /// The gate is a single-qubit rotation through pi radians around the y-axis.
     ///
@@ -84,7 +84,7 @@ pub enum Instruction {
     /// for more information.
     PauliY(usize),
 
-    /// The Pauli-Z gate instruction.
+    /// The Pauli-Z gate.
     ///
     /// The gate is a single-qubit rotation through pi radians around the z-axis.
     ///
@@ -103,10 +103,31 @@ pub enum Instruction {
     /// |1> --> H --> 1/sqrt(2) * (|0> - |1>) or |-> --> H --> |1>
     /// ```
     ///
+    /// Hadamard gate matrix is hermitian, so if we apply Hadamard again after we've
+    /// created the superposition state, the state will be destroyed.
+    ///
     /// See [Wikipedia](https://en.wikipedia.org/wiki/Hadamard_transform#Quantum_computing_applications)
     /// for more information.
     Hadamard(usize),
-    Phase(usize, f64),
+
+    /// The Phase gate.
+    ///
+    /// The gate changes the phase in probability amplitude of `|1>`:
+    ///
+    /// ```txt
+    /// |0> --> P(phase) --> |0>
+    /// |1> --> P(phase) --> e^(i*phase) |1>
+    /// ```
+    ///
+    /// And it is obvious that:
+    ///
+    /// ```txt
+    /// P(phase) dagger = P(-phase)
+    /// ```
+    Phase {
+        qubit: usize,
+        phase: f64,
+    },
     T(usize),
 
     /// The Controlled-NOT gate.
@@ -119,7 +140,8 @@ pub enum Instruction {
     /// ```
     ///
     /// In terms of controlled not gates it is defined as the gate that changes the base
-    /// state of the target qubit, if the base state of the control qubit is `|1>`:
+    /// state of the target qubit ([`Instruction::ControlledNot::target`]), if the base state of the control
+    /// qubit ([`Instruction::ControlledNot::control`]) is `|1>`:
     ///
     /// ```txt
     /// a|00>+b|01>+c|10>+d|11> --> CNOT(0, 1) --> a|00>+b|01>+d|10>+c|11>
@@ -136,13 +158,115 @@ pub enum Instruction {
     ///
     /// See [Wikipedia](https://en.wikipedia.org/wiki/Controlled_NOT_gate)
     /// for more information.
-    CNOT(usize, usize),
-    ControlledU(Box<Instruction>, usize, usize),
+    ControlledNot {
+        /// The control qubit.
+        ///
+        /// See [`Instruction::ControlledNot`] for more information.
+        control: usize,
+
+        /// The target qubit.
+        ///
+        /// See [`Instruction::ControlledNot`] for more information.
+        target: usize,
+    },
+
+    /// The Controlled-U gate.
+    ///
+    /// The gate executes gate [`Instruction::ControlledU::gate`] on basis state of the target qubit,
+    /// if the basis state of the control qubit is `|1>`:
+    /// ```txt
+    /// |00> --> CU(0, 1, U = H) --> |00>
+    /// |01> --> CU(0, 1, U = H) --> |01>
+    /// |10> --> CU(0, 1, U = H) --> 1/sqrt(2)*(|10>+|11>)
+    /// |11> --> CU(0, 1, U = H) --> 1/sqrt(2)*(|10>-|11>)
+    /// ```
+    ControlledU {
+        /// The single qubit gate U.
+        ///
+        /// See [`Instruction::ControlledU`] for more information.
+        gate: Box<Instruction>,
+
+        /// The control qubit.
+        ///
+        /// See [`Instruction::ControlledU`] for more information.
+        control: usize,
+
+        /// The target qubit.
+        ///
+        /// See [`Instruction::ControlledU`] for more information.
+        target: usize,
+    },
+
+    /// The Swap gate.
+    ///
+    /// The gate swaps two qubit states:
+    ///
+    /// ```txt
+    /// |a>|b> --> SWAP(0, 1) --> |b>|a>
+    /// ```
+    ///
+    /// And so it is obvious that: `SWAP(a, b) = SWAP(b, a)` and also that
+    /// the gate matrix is hermitian.
     SWAP(usize, usize),
-    Toffoli(usize, usize, usize),
-    CX(usize, usize),
-    RotationX(usize, f64),
-    RotationY(usize, f64),
-    RotationZ(usize, f64),
-    Custom(String, QuantumCircuit, Vec<usize>),
+
+    /// The Rotation-X gate.
+    /// 
+    /// The gate rotates qubit statevector around the X-axis by angle 
+    /// [`Instruction::RotationX::phase`].
+    RotationX {
+        /// The qubit which RX gate is applyed to.
+        ///
+        /// See [`Instruction::RotationX`] for more information.
+        qubit: usize, 
+
+        /// The angle which qubit state is rotate around the X-axis by.
+        ///
+        /// See [`Instruction::RotationX`] for more information.
+        phase: f64
+    },
+
+    /// The Rotation-Y gate.
+    /// 
+    /// The gate rotates qubit statevector around the Y-axis by angle 
+    /// [`Instruction::RotationY::phase`].
+    RotationY {
+        /// The qubit which RX gate is applyed to.
+        ///
+        /// See [`Instruction::RotationX`] for more information.
+        qubit: usize, 
+
+        /// The angle which qubit state is rotate around the X-axis by.
+        ///
+        /// See [`Instruction::RotationX`] for more information.
+        phase: f64
+    },
+    
+    /// The Rotation-Z gate.
+    /// 
+    /// The gate rotates qubit statevector around the Z-axis by angle 
+    /// [`Instruction::RotationZ::phase`].
+    RotationZ {
+        /// The qubit which RX gate is applyed to.
+        ///
+        /// See [`Instruction::RotationX`] for more information.
+        qubit: usize, 
+
+        /// The angle which qubit state is rotate around the X-axis by.
+        ///
+        /// See [`Instruction::RotationX`] for more information.
+        phase: f64
+    },
+    
+
+    /// Represents custom gate.
+    Custom {
+        /// Name of the custom gate.
+        name: String, 
+
+        /// Circuit that represents what gate does to input qubits.
+        circuit: QuantumCircuit, 
+
+        /// The gates' input qubits.
+        input_qubits: Vec<usize>
+    },
 }

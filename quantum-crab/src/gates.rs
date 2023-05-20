@@ -48,32 +48,3 @@ pub fn pauli_z() -> Gate {
 pub fn swap() -> Gate {
     matrix_real![[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]
 }
-
-pub fn controlled_u(
-    control: usize,
-    target: usize,
-    u_gate: Matrix<Complex>,
-    n: usize,
-) -> Matrix<Complex> {
-    todo!()
-}
-
-#[inline]
-pub fn controlled_x(control: usize, target: usize, n: usize) -> Matrix<Complex> {
-    controlled_u(control, target, pauli_x(), n)
-}
-
-#[inline]
-pub fn controlled_not(control: usize, target: usize, n: usize) -> Matrix<Complex> {
-    controlled_x(control, target, n)
-}
-
-#[inline]
-pub fn controlled_y(control: usize, target: usize, n: usize) -> Matrix<Complex> {
-    controlled_u(control, target, pauli_y(), n)
-}
-
-#[inline]
-pub fn controlled_z(control: usize, target: usize, n: usize) -> Matrix<Complex> {
-    controlled_u(control, target, pauli_z(), n)
-}

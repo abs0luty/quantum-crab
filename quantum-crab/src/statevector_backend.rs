@@ -21,7 +21,7 @@ fn execute_single_qubit_instruction(
         Instruction::PauliY(..) => pauli_y(),
         Instruction::PauliZ(..) => pauli_z(),
         Instruction::Hadamard(..) => hadamard(),
-        Instruction::Phase(.., phase) => phase_shift(*phase),
+        Instruction::Phase { phase, .. } => phase_shift(*phase),
         Instruction::T(..) => t(),
         _ => unreachable!(),
     };
@@ -51,7 +51,7 @@ impl Backend for StateVectorBackend {
                 | &Instruction::PauliX(qubit)
                 | &Instruction::PauliY(qubit)
                 | &Instruction::PauliZ(qubit)
-                | &Instruction::Phase(qubit, ..)
+                | &Instruction::Phase { qubit, .. }
                 | &Instruction::T(qubit) => {
                     execute_single_qubit_instruction(instruction, &circuit, qubit, &mut statevector)
                 }
