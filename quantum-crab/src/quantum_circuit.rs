@@ -1,3 +1,4 @@
+/// Represents a set of instructions applied to a set of qubits.
 #[derive(Debug, Clone, PartialEq)]
 pub struct QuantumCircuit {
     qubits: usize,
@@ -5,6 +6,7 @@ pub struct QuantumCircuit {
 }
 
 impl QuantumCircuit {
+    /// Constructs empty circuit with a concrete amount of qubits.
     pub fn new(qubits: usize) -> QuantumCircuit {
         QuantumCircuit {
             qubits,
@@ -12,20 +14,25 @@ impl QuantumCircuit {
         }
     }
 
+    /// Adds instruction into the quantum circuit.
     pub fn add(&mut self, instruction: Instruction) {
         self.instructions.push(instruction);
     }
 
+    /// Amount of qubits used in the circuit.
     pub fn qubits(&self) -> usize {
         self.qubits
     }
 
+    /// List of instructions inside the circuit.
     pub fn instructions(&self) -> &Vec<Instruction> {
         &self.instructions
     }
 }
 
+/// The trait used to visualize quantum circuits in different formats.
 pub trait CircuitVisualizer {
+    /// Visualizes given quantum circuit.
     fn visualize_circuit(circuit: QuantumCircuit);
 }
 
@@ -41,7 +48,14 @@ pub enum Instruction {
     ///
     /// # Example
     /// ```
-    /// let circuit = QuantumCircuit::new(1);
+    /// use quantum_crab::{
+    ///   matrix_real,
+    ///   backend::Backend,
+    ///   statevector_backend::StateVectorBackend,
+    ///   quantum_circuit::{QuantumCircuit, Instruction}
+    /// };
+    ///
+    /// let mut circuit = QuantumCircuit::new(1);
     /// circuit.add(Instruction::Identity(0));
     /// let state_vector = StateVectorBackend::execute(circuit);
     /// assert_eq!(state_vector, matrix_real![[1], [0]]);
@@ -64,7 +78,14 @@ pub enum Instruction {
     ///
     /// # Example
     /// ```
-    /// let circuit = QuantumCircuit::new(1);
+    /// use quantum_crab::{
+    ///   backend::Backend,
+    ///   statevector_backend::StateVectorBackend,
+    ///   quantum_circuit::{QuantumCircuit, Instruction},
+    ///   matrix_real
+    /// };
+    ///
+    /// let mut circuit = QuantumCircuit::new(1);
     /// circuit.add(Instruction::PauliX(0));
     /// let state_vector = StateVectorBackend::execute(circuit);
     /// assert_eq!(state_vector, matrix_real![[0], [1]]);
@@ -210,63 +231,62 @@ pub enum Instruction {
     SWAP(usize, usize),
 
     /// The Rotation-X gate.
-    /// 
-    /// The gate rotates qubit statevector around the X-axis by angle 
+    ///
+    /// The gate rotates qubit statevector around the X-axis by angle
     /// [`Instruction::RotationX::phase`].
     RotationX {
         /// The qubit which RX gate is applyed to.
         ///
         /// See [`Instruction::RotationX`] for more information.
-        qubit: usize, 
+        qubit: usize,
 
         /// The angle which qubit state is rotate around the X-axis by.
         ///
         /// See [`Instruction::RotationX`] for more information.
-        phase: f64
+        phase: f64,
     },
 
     /// The Rotation-Y gate.
-    /// 
-    /// The gate rotates qubit statevector around the Y-axis by angle 
+    ///
+    /// The gate rotates qubit statevector around the Y-axis by angle
     /// [`Instruction::RotationY::phase`].
     RotationY {
         /// The qubit which RX gate is applyed to.
         ///
         /// See [`Instruction::RotationX`] for more information.
-        qubit: usize, 
+        qubit: usize,
 
         /// The angle which qubit state is rotate around the X-axis by.
         ///
         /// See [`Instruction::RotationX`] for more information.
-        phase: f64
+        phase: f64,
     },
-    
+
     /// The Rotation-Z gate.
-    /// 
-    /// The gate rotates qubit statevector around the Z-axis by angle 
+    ///
+    /// The gate rotates qubit statevector around the Z-axis by angle
     /// [`Instruction::RotationZ::phase`].
     RotationZ {
         /// The qubit which RX gate is applyed to.
         ///
         /// See [`Instruction::RotationX`] for more information.
-        qubit: usize, 
+        qubit: usize,
 
         /// The angle which qubit state is rotate around the X-axis by.
         ///
         /// See [`Instruction::RotationX`] for more information.
-        phase: f64
+        phase: f64,
     },
-    
 
     /// Represents custom gate.
     Custom {
         /// Name of the custom gate.
-        name: String, 
+        name: String,
 
         /// Circuit that represents what gate does to input qubits.
-        circuit: QuantumCircuit, 
+        circuit: QuantumCircuit,
 
         /// The gates' input qubits.
-        input_qubits: Vec<usize>
+        input_qubits: Vec<usize>,
     },
 }

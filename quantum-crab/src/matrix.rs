@@ -24,6 +24,15 @@ impl<T: Clone + Default + Debug> Matrix<T> {
         }
     }
 
+    /// Constructs a new matrix and populate it with the contents.
+    ///
+    /// ```
+    /// use quantum_crab::matrix::Matrix;
+    ///
+    /// let matrix = Matrix::new(2, 2, vec![1, 2, 3, 4]);
+    /// assert_eq!(matrix.get(0, 0), 1);
+    /// assert_eq!(matrix.get(1, 0), 3);
+    /// ```
     pub fn new(rows: usize, cols: usize, contents: Vec<T>) -> Matrix<T> {
         Matrix {
             rows,
@@ -211,17 +220,19 @@ where
     }
 }
 
+#[macro_export]
 macro_rules! m_one {
     ( $item:tt ) => {
         1
     };
 }
 
+#[macro_export]
 macro_rules! m_rec {
     [[ $($row:tt),* ] [$($i:expr),*]] => ({
-        let _rows = 0 $(+ m_one!($row) )*;
-        let _cols = (0 $(+ m_one!($i))*) / _rows;
-        Matrix::new(
+        let _rows = 0 $(+ $crate::m_one!($row) )*;
+        let _cols = (0 $(+ $crate::m_one!($i))*) / _rows;
+        $crate::matrix::Matrix::new(
             _rows,
             _cols,
             vec![$($i),*]
@@ -231,12 +242,13 @@ macro_rules! m_rec {
 
 #[macro_export]
 macro_rules! matrix {
-    ($([$( $i:expr ),*]),*) => ( m_rec!([$([$($i),*]),*] [$($($i),*),*]) )
+    ($([$( $i:expr ),*]),*) => ( $crate::m_rec!([$([$($i),*]),*] [$($($i),*),*]) )
 }
 
+#[macro_export]
 macro_rules! matrix_real {
-    ($([$( $i:expr ),*]),*) => ( m_rec!([$([$(Complex::from($i)),*]),*]
-        [$($(Complex::from($i)),*),*]) )
+    ($([$( $i:expr ),*]),*) => ( $crate::m_rec!([$([$($crate::complex::Complex::from($i)),*]),*]
+        [$($($crate::complex::Complex::from($i)),*),*]) )
 }
 
 #[test]
