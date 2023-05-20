@@ -10,7 +10,8 @@ use std::f64::consts::PI;
 #[derive(Debug)]
 pub struct StateVectorBackend;
 
-fn execute_single_qubit_instruction(
+/// Executes single qubit gate `instruction` and applies it to the `statevector`.
+fn execute_single_qubit_gate(
     instruction: &Instruction,
     circuit: &QuantumCircuit,
     qubit: usize,
@@ -104,7 +105,7 @@ impl Backend for StateVectorBackend {
                 | &Instruction::RotationX { qubit, .. }
                 | &Instruction::RotationY { qubit, .. }
                 | &Instruction::RotationZ { qubit, .. } => {
-                    execute_single_qubit_instruction(instruction, &circuit, qubit, &mut statevector)
+                    execute_single_qubit_gate(instruction, &circuit, qubit, &mut statevector)
                 }
                 _ => todo!(),
             }

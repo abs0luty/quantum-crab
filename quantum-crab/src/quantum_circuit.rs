@@ -7,7 +7,9 @@ pub struct QuantumCircuit {
 
 impl QuantumCircuit {
     /// Constructs empty circuit with a concrete amount of qubits.
-    pub fn new(qubits: usize) -> QuantumCircuit {
+    #[inline]
+    #[must_use]
+    pub const fn new(qubits: usize) -> QuantumCircuit {
         QuantumCircuit {
             qubits,
             instructions: Vec::new(),
@@ -15,17 +17,73 @@ impl QuantumCircuit {
     }
 
     /// Adds instruction into the quantum circuit.
+    #[inline]
     pub fn add(&mut self, instruction: Instruction) {
+        self.validate_instruction(&instruction, None);
         self.instructions.push(instruction);
     }
 
+    /// Validates instruction, before it is added into the circuit.
+    fn validate_instruction(&self, instruction: &Instruction, custom_gate_circuit: Option<&str>) {
+        match instruction {
+            Instruction::Identity(qubit)
+            | Instruction::PauliX(qubit)
+            | Instruction::PauliY(qubit)
+            | Instruction::PauliZ(qubit)
+            | Instruction::Hadamard(qubit)
+            | Instruction::Phase { qubit, .. }
+            | Instruction::T(qubit)
+            | Instruction::RotationX { qubit, .. }
+            | Instruction::RotationY { qubit, .. }
+            | Instruction::RotationZ { qubit, .. } => {
+                self.validate_input_qubit(*qubit, instruction, custom_gate_circuit)
+            }
+            Instruction::Custom {
+                name,
+                circuit,
+                input_qubits,
+            } => {
+                for qubit in input_qubits {
+                    self.validate_input_qubit(*qubit, instruction, custom_gate_circuit);
+                }
+
+                for instruction in circuit.instructions() {
+                    self.validate_instruction(instruction, Some(name));
+                }
+            }
+            _ => todo!(),
+        }
+    }
+
+    /// Validates input qubit used in the instruction, before it is added into
+    /// the circuit.
+    #[inline]
+    fn validate_input_qubit(
+        &self,
+        qubit: usize,
+        instruction: &Instruction,
+        custom_gate_circuit: Option<&str>,
+    ) {
+        let mut message = format!("Invalid input qubit in instruction: {:?}", instruction);
+        if let Some(circuit_name) = custom_gate_circuit {
+            message.push_str(&format!(
+                " inside custom gate inner circuit: {:?}",
+                circuit_name
+            ));
+        }
+
+        assert!(qubit < self.qubits, "{}", message);
+    }
+
     /// Amount of qubits used in the circuit.
-    pub fn qubits(&self) -> usize {
+    #[inline]
+    pub const fn qubits(&self) -> usize {
         self.qubits
     }
 
     /// List of instructions inside the circuit.
-    pub fn instructions(&self) -> &Vec<Instruction> {
+    #[inline]
+    pub const fn instructions(&self) -> &Vec<Instruction> {
         &self.instructions
     }
 }
