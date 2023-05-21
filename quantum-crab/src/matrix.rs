@@ -8,6 +8,7 @@ use std::{
     ops::{Add, Mul},
 };
 
+/// Represents matrix data structure.
 #[derive(Clone, PartialEq, Debug, Default)]
 pub struct Matrix<T> {
     rows: usize,
@@ -16,6 +17,8 @@ pub struct Matrix<T> {
 }
 
 impl<T: Clone + Default + Debug> Matrix<T> {
+    /// Constructs a new matrix with elements being initialized using
+    /// [`Default::default()`].
     pub fn new_with_default_elems(rows: usize, cols: usize) -> Matrix<T> {
         Matrix {
             rows,
@@ -41,22 +44,34 @@ impl<T: Clone + Default + Debug> Matrix<T> {
         }
     }
 
+    /// Gets the element in a given `row` and `col`.
     pub fn get(&self, row: usize, col: usize) -> T {
         self.data[row * self.cols + col].clone()
     }
 
+    /// Sets the element in a given `row` and `col` to have value `value`.
     pub fn set(&mut self, row: usize, col: usize, value: T) {
         self.data[row * self.cols + col] = value;
     }
 
+    /// Amount of rows in the matrix contents.
     pub fn rows(&self) -> usize {
         self.rows
     }
 
+    /// Amount of columns in the matrix contents.
     pub fn cols(&self) -> usize {
         self.cols
     }
 
+    /// Transposes the matrix.
+    ///
+    /// ```
+    /// use quantum_crab::matrix::Matrix;
+    ///
+    /// let matrix = Matrix::new(2, 2, vec![1, 2, 3, 4]);
+    /// assert_eq!(matrix.transpose(), Matrix::new(2, 2, vec![1, 3, 2, 4]));
+    /// ```
     pub fn transpose(&self) -> Matrix<T> {
         let mut result = Matrix::new_with_default_elems(self.cols, self.rows);
 
@@ -69,6 +84,7 @@ impl<T: Clone + Default + Debug> Matrix<T> {
         result
     }
 
+    /// Calculates the dot product.
     pub fn dot_product(&self, rhs: &Matrix<T>) -> Matrix<T>
     where
         T: Add<Output = T> + Mul<Output = T>,
@@ -92,6 +108,7 @@ impl<T: Clone + Default + Debug> Matrix<T> {
         result
     }
 
+    /// Calculates the tensor product.
     pub fn tensor_product(&self, other: &Matrix<T>) -> Matrix<T>
     where
         T: Mul<Output = T>,
@@ -113,6 +130,8 @@ impl<T: Clone + Default + Debug> Matrix<T> {
         result
     }
 
+    /// Embeds the matrix into row `i`, column `j` (these are the coordinates of the beginning
+    /// of given matrix).
     pub fn embed(&mut self, matrix: &Matrix<T>, i: usize, j: usize) {
         assert!(i + matrix.rows() <= self.rows());
         assert!(j + matrix.cols() <= self.cols());
@@ -146,6 +165,28 @@ where
 }
 
 impl Matrix<Complex> {
+    /// Calculates the hermitian transpose (can also be referred to as conjugate transpose) of
+    /// the given matrix.
+    ///
+    /// It just takes every element in the matrix, and calculates its complex conjugate.
+    /// Then transposes the matrix.
+    ///
+    /// ```
+    /// use quantum_crab::{
+    ///   matrix,
+    ///   matrix::Matrix,
+    ///   complex::Complex
+    /// };
+    ///
+    /// let matrix = matrix![[Complex::new(1, 1), Complex::new(1, -1)]];
+    /// assert_eq!(
+    ///   matrix.hermitian_transpose(),
+    ///   matrix![
+    ///     [Complex::new(1, -1)],
+    ///     [Complex::new(1, 1)]
+    ///   ]
+    /// );
+    /// ```
     pub fn hermitian_transpose(&self) -> Self {
         let mut result = Matrix::new_with_default_elems(self.cols, self.rows);
 
@@ -163,6 +204,7 @@ impl<T> Matrix<T>
 where
     T: Clone + Default + Mul<Output = T> + PartialEq + One + Debug,
 {
+    /// Identity matrix, with size being the amount of columns/rows.
     pub fn identity(size: usize) -> Matrix<T> {
         let mut result = Matrix::new_with_default_elems(size, size);
         for i in 0..size {
@@ -240,6 +282,15 @@ macro_rules! m_rec {
     })
 }
 
+/// Macro used to construct a matrix.
+///
+/// # Example
+/// ```
+/// use quantum_crab::matrix;
+///
+/// let matrix = matrix![[1, 2], [3, 4], [5, 6]];
+/// assert_eq!(matrix.get(1, 2), 5);
+/// ```
 #[macro_export]
 macro_rules! matrix {
     ($([$( $i:expr ),*]),*) => ( $crate::m_rec!([$([$($i),*]),*] [$($($i),*),*]) )
