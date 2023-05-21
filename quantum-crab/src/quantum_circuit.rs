@@ -198,16 +198,103 @@ pub enum Instruction {
     /// |1> --> P(phase) --> e^(i*phase) |1>
     /// ```
     ///
+    /// See [Wikipedia](https://en.wikipedia.org/wiki/Quantum_logic_gate#Phase_shift_gates)
+    /// for more information.
+    Phase { qubit: usize, phase: f64 },
+
+    /// The Phase dagger gate.
+    ///
+    /// The gate is the opposite of the [`Instruction::Phase`], and so it changes the phase in probability amplitude of `|1>` by value
+    /// `-phase`:
+    ///
+    /// ```txt
+    /// |0> --> P(phase) --> |0>
+    /// |1> --> P(phase) --> e^(i*-phase) |1>
+    /// ```
+    ///
     /// And it is obvious that:
     ///
     /// ```txt
     /// P(phase) dagger = P(-phase)
     /// ```
-    Phase {
-        qubit: usize,
-        phase: f64,
-    },
+    ///
+    /// See [Wikipedia](https://en.wikipedia.org/wiki/Quantum_logic_gate#Phase_shift_gates)
+    /// for more information.
+    PhaseDagger { qubit: usize, phase: f64 },
+
+    /// The T gate.
+    ///
+    /// Changes the phase of the probability amplitude of `|1>` by angle pi/4.
+    ///
+    /// ```txt
+    /// |0> --> T --> |0>
+    /// |1> --> T --> e^(i pi/4) |1>
+    /// ```
+    ///
+    /// And so:
+    /// ```txt
+    /// T = P(pi/4) = sqrt(S) = Z^(1/4)
+    /// ```
+    ///
+    /// See [Wikipedia](https://en.wikipedia.org/wiki/Quantum_logic_gate#Phase_shift_gates)
+    /// and [`Instruction::Phase`] for more information.
     T(usize),
+
+    /// The T dagger gate.
+    ///
+    /// The gate is the opposite of the [`Instruction::T`]. So it changes the phase
+    /// of the probability amplitude of `|1>` by angle -pi/4.
+    ///
+    /// ```txt
+    /// |0> --> T --> |0>
+    /// |1> --> T --> e^(i -pi/4) |1>
+    /// ```
+    ///
+    /// And so:
+    /// ```txt
+    /// T dagger = P(-pi/4) = sqrt(S dagger) = (Z dagger)^(1/4)
+    /// ```
+    ///
+    /// See [Wikipedia](https://en.wikipedia.org/wiki/Quantum_logic_gate#Phase_shift_gates),
+    /// [`Instruction::T`] and [`Instruction::Phase`] for more information.
+    TDagger(usize),
+
+    /// The S gate.
+    ///
+    /// Changes the phase of the probability amplitude of `|1>` by angle pi/2.
+    ///
+    /// ```txt
+    /// |0> --> T --> |0>
+    /// |1> --> T --> i|1>
+    /// ```
+    ///
+    /// And so:
+    /// ```txt
+    /// S = P(pi/2) = sqrt(Z)
+    /// ```
+    ///
+    /// See [Wikipedia](https://en.wikipedia.org/wiki/Quantum_logic_gate#Phase_shift_gates)
+    /// and [`Instruction::Phase`] for more information.
+    S(usize),
+
+    /// The S dagger gate.
+    ///
+    /// The gate is the opposite of the [`Instruction::S`]. So it changes the phase
+    /// of the probability amplitude of `|1>` by angle -pi/2.
+    ///
+    /// ```txt
+    /// |0> --> T --> |0>
+    /// |1> --> T --> -i|1>
+    /// ```
+    ///
+    /// And so:
+    /// ```txt
+    /// S dagger = P(-pi/2) = sqrt(Z dagger)
+    /// ```
+    ///
+    /// See [Wikipedia](https://en.wikipedia.org/wiki/Quantum_logic_gate#Phase_shift_gates),
+    /// [`Instruction::S`] and [`Instruction::Phase`] for more information.
+    SDagger(usize),
 
     /// The Controlled-NOT gate.
     ///
@@ -276,6 +363,50 @@ pub enum Instruction {
         target: usize,
     },
 
+    /// The Toffoli gate.
+    ///
+    /// See [`Instruction::ControlledU`] for more information about controlled gates.
+    ///
+    /// ```txt
+    /// |a>|b>|c> --> TOFFOLI(0, 1, 2) --> |a>|b>|c+ab>
+    /// ```
+    ///
+    /// In terms of controlled not gates it is defined as the gate that changes the base
+    /// state of the target qubit ([`Instruction::Toffoli::target`]), if the base states of both control
+    /// qubits ([`Instruction::Toffoli::control1`] and [`Instruction::Toffoli::control2`]) are `|1>`:
+    ///
+    /// So the truth table for the gate looks like this:
+    ///
+    /// | Input A | Input B | Input C | Output A | Output B | Output C |
+    /// |---------|---------|---------|----------|----------|----------|
+    /// |    0    |    0    |    0    |    0     |    0     |    0     |
+    /// |    0    |    0    |    1    |    0     |    0     |    1     |
+    /// |    0    |    1    |    0    |    0     |    1     |    0     |
+    /// |    0    |    1    |    1    |    0     |    1     |    1     |
+    /// |    1    |    0    |    0    |    1     |    0     |    0     |
+    /// |    1    |    0    |    1    |    1     |    0     |    1     |
+    /// |    1    |    1    |    0    |    1     |    1     |    1     |
+    /// |    1    |    1    |    1    |    1     |    1     |    0     |
+    ///
+    /// See [Wikipedia](https://en.wikipedia.org/wiki/Toffoli_gate)
+    /// for more information.
+    Toffoli {
+        /// The control qubit 1.
+        ///
+        /// See [`Instruction::Toffoli`] for more information.
+        control1: usize,
+
+        /// The control qubit 2.
+        ///
+        /// See [`Instruction::Toffoli`] for more information.
+        control2: usize,
+
+        /// The target qubit.
+        ///
+        /// See [`Instruction::Toffoli`] for more information.
+        target: usize,
+    },
+
     /// The Swap gate.
     ///
     /// The gate swaps two qubit states:
@@ -286,7 +417,7 @@ pub enum Instruction {
     ///
     /// And so it is obvious that: `SWAP(a, b) = SWAP(b, a)` and also that
     /// the gate matrix is hermitian.
-    SWAP(usize, usize),
+    Swap(usize, usize),
 
     /// The Rotation-X gate.
     ///

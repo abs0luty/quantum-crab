@@ -67,7 +67,23 @@ fn execute_single_qubit_gate(
             [Complex::one(), Complex::zero()],
             [Complex::zero(), Complex::new_from_polar(1, *phase)]
         ],
+        Instruction::PhaseDagger { phase, .. } => matrix![
+            [Complex::one(), Complex::zero()],
+            [Complex::zero(), Complex::new_from_polar(1, -phase)]
+        ],
         Instruction::T(..) => matrix![
+            [Complex::one(), Complex::zero()],
+            [Complex::zero(), Complex::new_from_polar(1, PI / 4f64)]
+        ],
+        Instruction::TDagger(..) => matrix![
+            [Complex::one(), Complex::zero()],
+            [Complex::zero(), Complex::new_from_polar(1, -PI / 4f64)]
+        ],
+        Instruction::S(..) => matrix![
+            [Complex::one(), Complex::zero()],
+            [Complex::zero(), Complex::new_from_polar(1, PI / 4f64)]
+        ],
+        Instruction::SDagger(..) => matrix![
             [Complex::one(), Complex::zero()],
             [Complex::zero(), Complex::new_from_polar(1, PI / 4f64)]
         ],
@@ -100,7 +116,11 @@ impl Backend for StateVectorBackend {
                 | &Instruction::PauliY(qubit)
                 | &Instruction::PauliZ(qubit)
                 | &Instruction::Phase { qubit, .. }
+                | &Instruction::PhaseDagger { qubit, .. }
                 | &Instruction::T(qubit)
+                | &Instruction::TDagger(qubit)
+                | &Instruction::S(qubit)
+                | &Instruction::SDagger(qubit)
                 | &Instruction::Identity(qubit)
                 | &Instruction::RotationX { qubit, .. }
                 | &Instruction::RotationY { qubit, .. }
